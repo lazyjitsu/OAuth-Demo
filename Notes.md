@@ -32,4 +32,33 @@ These hooks simply how you pass state.
 All of these hooks. Are really just making sure that our application state is saved and any calculations or API requests needed for that state are only performed when the user performs some action that will cause an update. For example, our launches data won't be reloaded every time we switch pages because nothing has changed.
 Hooks are great for making our react applications more efficient and minimizing the amount of requests that are API needs to handle which speeds everything up.
 
-Everybody wins.
+Everybody wins. Now lets setup the API
+
+### API Server Setup
+
+`cd server`
+`npm init -y`
+For convenience, we'll use nodemon and make it dev dependency ONLY i.e. won't ship with production! 
+`npm install  --save-dev nodemon`
+mkdir src inside of server folder to mimick the client folder code that Nasa has.
+mv server.js,model & routes folder to like so:
+
+NASA-PRJ
+└───src
+    ├───models
+    └───routes
+
+
+modify package.json to point to new location. E.g.
+
+"watch": "nodemon src/server.js"
+
+Recall our frontend React runs on port 3000 by default, so it helps us if we runour backend server on a different port, say 8000. We could specify an env variable like so
+Package.json:
+
+if using windows:
+
+  "start": "set PORT=5000&& node src/server.js"
+Note: cross-env NPM can handle any OS if interested.
+
+Note express's app.listen is the same as http.listen. We can use either of them. 
