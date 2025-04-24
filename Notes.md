@@ -62,3 +62,29 @@ if using windows:
 Note: cross-env NPM can handle any OS if interested.
 
 Note express's app.listen is the same as http.listen. We can use either of them. 
+
+### Building for production
+
+Most/all frameworks will have a build script to build for production. If we're using plain old java script, for our front-end, we don't need to worry about this.  We can just serve those files directly.
+
+Ideally, we'd like to run both client & server from the same location. As of now they run on two differnet ports on two different directories. 
+
+`cd client`
+`npm run build`
+
+Note this will create a build directory at client/build
+We don't want the build directory/folder to live under the client directory. We can automically setup our client to copy this folder into our server. 
+To do this, in package.json add the following line to scripts section.
+For windows:
+
+"scripts": {
+  "build": "set BUILD_PATH=../server/public&& react-scripts build",
+}
+
+Now we have to let our API server know we'll be serving the react client by going into app.js and doing:
+
+app.use(express.static((path.join(__dirname,'..','public')))); // Serve static files from the 'public' directory
+
+
+
+

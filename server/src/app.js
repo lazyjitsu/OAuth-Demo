@@ -1,23 +1,21 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const app = express();
 const planetsRouter = require('./routes/planets/planets.router');
 app.use(cors())
-// app.use(cors({
-//     origin: 'http://localhost:3000',
-// }));
 
-// pass any incoming json data from body of incoming requests to the server
-app.use(express.json({oriigin: 'http://localhost:3000'}));
-console.log('Before planetss router');
-
-app.get('/products/', cors(), function (req, res, next) {
-    res.json({msg: 'This is CORS-enabled for a Single Route'});
-  });
+app.use(express.json()); // Middleware to parse JSON request bodies
+app.use(express.static((path.join(__dirname,'..','public')))); // Serve static files from the 'public' directory
 
 
 
 app.use(planetsRouter);
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+});
+
 console.log('After planets router');
 module.exports= app;
  
