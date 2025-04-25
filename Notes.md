@@ -86,5 +86,51 @@ Now we have to let our API server know we'll be serving the react client by goin
 app.use(express.static((path.join(__dirname,'..','public')))); // Serve static files from the 'public' directory
 
 
+### Logging Requests wtih Morgan
 
+Of course we can write our own use the req.url etc...but Morgan has a lot of good features according to Udemy such as log rotation. 
+
+
+https://www.npmjs.com/package/morgan
+
+Apache style:
+
+:remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length]
+
+Dev:
+
+:method :url :status :response-time ms - :res[content-length]
+
+Minimal:
+
+:method :url :status :res[content-length] - :response-time ms
+
+Install: `npm install morgan`
+
+
+### Launch Model
+
+const launch = {
+  flightNumber: 100,
+  mission: 'Kepler Exploration X',
+  rocket: 'Explorer IS1',
+  launchDate: new Date('December 22, 2040'),
+  destination: 'Kepler-442 b',
+  customer: ['ZTM','NASA'],
+  upcoming:true,
+  success:true,
+}
+#### Java maps
+To store launches we will use java maps. They are more flexible than java objects because they can store stuff like:
+{
+  ()=> {}: '',
+  1234: 'launch number'
+}
+
+They also preserve the order you insert things which is not guaranteed w/ordinary java objects. 
+
+const launches = new Map();
+// key = flightNumer, value = launch
+launches.set(launch.flightNumber, launch)
+launches.get(100) === launch
 
