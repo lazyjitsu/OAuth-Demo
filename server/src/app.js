@@ -18,8 +18,11 @@ app.use(express.static((path.join(__dirname,'..','public')))); // Serve static f
 
 
 
-app.use(planetsRouter);
-app.use(launchesRouter);
+app.use('/planets',planetsRouter);
+// we used '/launches' like this cause of the multiple '/launches' in the router, we didn't need to do
+// it but jus leveraging express's ability to mount /launches and keep things shorter in the router
+
+app.use('/launches',launchesRouter);
 // Angular and Vue, any frontend that uses the HTML5 history API for routing and specifically the.
 // Push state function to navigate from roads to roads can be served from Express.
 // This is a catch-all route that serves the index.html file for any other routes not handled by the API.
