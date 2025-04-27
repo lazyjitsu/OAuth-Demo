@@ -2,7 +2,7 @@
 //  We want them to be concerned with the data itself. So we will use a model to store the data and then use the model in our controller.
 
 // recall launches is a new map();
-const {getAllLaunches,addNewLaunch} = require('../../models/launches.model');
+const {getAllLaunches,addNewLaunch,existsLaunchWithId, abortLaunchById} = require('../../models/launches.model');
 function httpGetAllLaunches(req, res) {
     console.log('Fetching all launches...');
     // json() corresponds to our launches map and what we really want to return is the values of the map
@@ -18,9 +18,9 @@ function httpGetAllLaunches(req, res) {
 
 function httpAddNewLaunch(req,res) {
     const launch = req.body;
-
-    if (!launch.mission || !launch.rocket || !launch.launchDate 
-        || !launch.destination) {
+    console.log(`LNCHEZ Key:${launch.mission}`)
+    if (!launch.mission || !launch.rocket 
+        || !launch.target || !launch.launchDate) {
         return res.status(400).json({
             error: 'Missing required launch property'
         });
@@ -32,14 +32,31 @@ function httpAddNewLaunch(req,res) {
     // launch.launchDate.toString === 'Invalid Date' 
     if(isNaN(launch.launchDate)) {
         return res.status(400).json({
-            error: 'Invalid launch date'
+            error: 'Invalid launch datee'
         })
     }
+    console.log(`Adding launch: ${launch}`)
     addNewLaunch(launch);
     return res.status(201).json(launch)
 }
 
+function httpAbortLaunch(req,res) {
+    const launchId = Number(req.params.id);
+
+    // if launch not exist
+    if (!existsLaunchWithId(launchId)) {
+        return res.status(404).json({
+            error: 'Launccch not found',
+        });
+    }
+    // if exists
+    const aborted = abortLaunchById(launchId);
+
+    return res.status(200).json(aborted);
+}
+
 module.exports = {
     httpGetAllLaunches,
-    httpAddNewLaunch
+    httpAddNewLaunch,
+    httpAbortLaunch
 };

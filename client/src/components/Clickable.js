@@ -1,6 +1,7 @@
 import { withSounds } from "arwes";
 
 const Clickable = props => {
+  // destruct props
   const {
     children,
     sounds,

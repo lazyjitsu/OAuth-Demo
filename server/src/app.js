@@ -4,19 +4,14 @@ const path = require('path');
 const app = express();
 const morgan = require('morgan');
 
-
-
 const planetsRouter = require('./routes/planets/planets.router');
 const launchesRouter = require('./routes/launches/launches.router');
-
 
 app.use(cors());
 app.use(morgan('combined')); // Logging middleware
 
 app.use(express.json()); // Middleware to parse JSON request bodies
 app.use(express.static((path.join(__dirname,'..','public')))); // Serve static files from the 'public' directory
-
-
 
 app.use('/planets',planetsRouter);
 // we used '/launches' like this cause of the multiple '/launches' in the router, we didn't need to do

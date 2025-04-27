@@ -25,14 +25,41 @@ async function httpGetLaunches() {
 }
 
 async function httpSubmitLaunch(launch) {
-  // TODO: Once API is ready.
   // Submit given launch data to launch system.
+  // If there is a network failure or similar where are api doesn't even get a chance
+  // to set response.ok, we need this try/catch block!
+  try {
+    const response = await fetch(`${API_URL}/launches`,
+      {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json" 
+        },
+        body: JSON.stringify(launch),
+      })
+    console.log(`Request resp received: ${response}`)
+    return response;
+  } catch(err) {
+    //response
+    return {
+      ok: false,
+    }
+  }
 }
 
 async function httpAbortLaunch(id) {
-  // TODO: Once API is ready.
   // Delete launch with given ID.
-}
+  try {
+    return await fetch(`${API_URL}/launches/${id}`,{
+      method: "delete",
+    });
+  } catch(err) {
+    console.log('Errrror',err);
+    return {
+      ok:false,
+    }
+  }
+} 
 
 export {
   httpGetPlanets,
