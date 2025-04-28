@@ -1,7 +1,7 @@
 const express = require('express');
 const cluster = require('cluster');
 const { pid } = require('node:process');
-
+const os = require('os');
 const app = express();
 
 function delay(duration) {
@@ -25,19 +25,18 @@ app.get('/',(req,res) => {
 
 app.get('/timer',(req,res) => {
     delay(4000);
-    p = process.id
     res.send(`Ding ding dings ${pid}`);
 })
-console.log(process.id)
+
 if (cluster.isMaster) {
     // runs only once during startup e.g. `node server.js`
-    console.log('Master has been started');
-    cluster.fork();
-    cluster.fork();
-    console.log("Started two processes")
+    const NUM_WORKERS = os.cpus().length;
+    for (let i = 0; i < NUM_WORKERS; i++) {
+        cluster.fork();
+    }
 } else {
+    console.log(`Worker started with ${pid}`)
     app.listen(3300,() => {
         console.log('listening on 3300')
     })
-    console.log('Worker process started!!');
 }
