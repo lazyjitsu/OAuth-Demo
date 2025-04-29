@@ -217,3 +217,10 @@ This cluster approach, which has been used in node since pretty much the day tha
 But that's what makes worker threads so exciting. There's still a lot of potential behind how they can be used. Its definately an area to watch out for!
 
 
+## Worker threads In Action
+E.g.
+new Worker(__filename)
+
+And as it stands, this code would create workers over and over until our machine can no longer create workers, right, because we would run our program. It would create workers that run our program again, which just create more workers forever.
+
+So what we want to do is only create new workers if we're in the main thread. When we run threads dogs for the first time, so we can check is main thread and only then call `new Worker()`  
