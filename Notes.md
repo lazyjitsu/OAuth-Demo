@@ -134,3 +134,86 @@ const launches = new Map();
 launches.set(launch.flightNumber, launch)
 launches.get(100) === launch
 
+## install pm2 for clustering
+
+cd server; npm i pm2
+
+Edit package.json and we should look something like:
+
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/server.js",
+    "watch": "nodemon src/server.js",
+    "cluster": "pm2 start src/server.js -i max"
+  },
+
+Important: Now when you create a launch and go check to see if it was created, you may not see it in the history! The reason is we are using new Map()
+which is making it seems we are not saving our launches because it stores it in the memory of our node process. Because we have multiple node processes in our cluster, in so the launches are stored in one of the node processes memory but when you subsequently run a get request for launches, you are likely getting it from a node process the launch was NOT created on thus not seeing the launch!!
+
+
+The solution is to remove state from the node processes and use a database.
+
+## Threads
+
+Worker threads module enables the use of threads that execute JS in parallel. Workers (threads) are useful for performing CPU-intensive JS operations. They don't help much with I/O intensive work. The NOdeJS built-in async I/O operations are more efficient than Works can be.
+
+But doesn't our JS code work on a single thread? Is what we learned wrong? Everything we learned still very much applies. Worker threads don't change how Node works at the core but they do add something new. Worker threads take node one step closer to being multi-threaded but not exactly. 
+
+So whats the diff between worker threads and traditional multi-threading? Worker threads are based on the 'Web workers' that are available in the browser with the web worker API. Web workers let you run a piece of JS code  in your browser in a worker thread. This is still evolving.
+
+Thanks to V8 Isolates, which are isolated instances of the V8 engine. We can think of them as sandboxes that run JS code independent of ea. other. Worker threads use these isolates to create new threads that can execute our JS code side by side w/ea. V8 isolate handling the JS code for one thread. 
+
+In practice that means worker threads allows us to take advantage of the multiple CPU processors in our machine. So worker threads are similar to the cluster module but do things very differently.  Cluster module uses processes and worker threads use this V8 isolate thingy. 
+
+How does this impact us as developers? Lets look at the difference.
+
+```mermaid
+---
+title: node server.js
+---
+stateDiagram-v2
+    [*] --> master
+    master --> worker1
+    master --> worker2
+```
+
+<font size="6" color="lightblue">Compared to the worker thread module</font>
+
+```mermaid
+---
+title: node index.js
+---
+stateDiagram-v2
+  state "main thread" as mt
+  state "worker thread" as w1
+  state "worker thread" as w2
+
+  [*] --> mt
+  mt --> w1: new worker()
+  mt --> w2: new worker()
+  ```
+
+Basically, you can think of the cluster module as allowing us to run multiple instances of node in separate processes, while the worker thread module allows us to run multiple instances of node in the same process.
+
+By taking advantage of that V8 isolate feature that we mentioned, we'll see this whole flow in action when we write some code to take advantage of worker threads.There's also some very important functional differences between worker threads and clusters.
+
+If you're paying really close attention, you might have noticed that with the worker thread example, I'm not calling my JavaScript file server.js, but instead index.js.
+
+This is to highlight the difference that each worker thread here is not designed to share requests coming=
+into a server. The worker threads module doesn't include any built in functionality to run a server on one port and distribute incoming requests between each thread.
+
+That's specific to the cluster module. So we could run a server using worker threads, but we'd have to implement that distribution of work
+
+ourselves.
+
+And here's the main difference.
+
+**Unlike processes made with the cluster module, worker threads can share memory between each other.**  
+
+For now, what we need to know is that the worker thread approach isn't as rock solid as the cluster approach with multiple processes.
+
+This cluster approach, which has been used in node since pretty much the day that it was created. **In production, I highly recommend you stick with clustering for your servers.**
+
+But that's what makes worker threads so exciting. There's still a lot of potential behind how they can be used. Its definately an area to watch out for!
+
+

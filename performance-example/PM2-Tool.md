@@ -91,3 +91,5 @@ Take the scenario where we have live users and you've made a code change and nee
 
 Now we could do a `pm2 restart server` but there would be a point where our server is unavailable to the users. We can use
 `pm2 reload server` command to restart processes one by one! 
+
+
