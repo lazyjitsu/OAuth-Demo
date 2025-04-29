@@ -11,7 +11,7 @@ function delay(duration) {
 }
 app.get('/',(req,res) => {
 
-    res.send(`Performance Examplee ${pid}`);
+    res.send(`Performance Examplees ${pid}`);
 })
 
 app.get('/timer',(req,res) => {
@@ -19,4 +19,6 @@ app.get('/timer',(req,res) => {
     res.send(`Ding ding dings ${pid}`);
 })
 
-}
+app.listen(3300, () => {
+    console.log('Listening on 3300')
+})
