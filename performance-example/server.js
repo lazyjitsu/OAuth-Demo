@@ -16,7 +16,7 @@ app.get('/',(req,res) => {
 
 app.get('/timer',(req,res) => {
     delay(4000);
-    res.send(`Ding ding dings ${pid}`);
+    res.send(`Beep beep ${pid}`);
 })
 
 app.listen(3300, () => {
