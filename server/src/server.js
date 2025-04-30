@@ -22,14 +22,7 @@ mongoose.connection.on('error', (err) => {
   console.error('Err: ',err);
 })
   async function startServer() {
-    await mongoose.connect(MONGO_URL,{
-      // how mongo handles/parses the mongo_url connection string
-      useNewUrlParser: true,
-      // disables the outdated way of handling mongo data 
-      // useFindAndModify: false,
-      //  useCreateIndex: true,
-      useUnifiedTopology: true,
-    })
+    await mongoose.connect(MONGO_URL)
     await loadPlanetsData(); // Load planets data before starting the server
     server.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
