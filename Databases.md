@@ -70,3 +70,68 @@ npm install mongodb
 Mongodb driver is the  driver that mongoose uses to connect to our database. Mongodb driver is the official API node uses to talk to mongo databases by the company that created mongo databases. 
 
 We use `mongoose.connection` which is an event emitter that emits events when the connetion is ready when either our connection succeeded or we have an error. 
+
+
+You can look at Mongo as a schemaless database.
+
+It's up to whatever is accessing our Mongo data to enforce some structure on the data that lives in our collections.
+And that's one of the things that Mongoose provides for us. Mongoose here in blue gives us these schema objects. Which are tied to a collection in MongoDB.
+
+Each schema maps to the group of documents inside of a collection. The schema lets us give the documents in our collections a structure that must be followed when accessing our data with Mongoose.
+
+We can say, for example, that a documents flight number is a number while the mission name is a string. And we can see that our flight number and mission name are both required fields. This required property is an example of how Mongoose lets us add validation logic to our documents. And if we so choose, Mongoose lets us provide more advanced validators that can check that, for example, a phone number isn't just a string. But a string that follows a certain format with dashes and with a certain amount of digits. That are grouped together.
+
+To get the data and documents stored in our Mango collections, these queries can include any of our create, read, update and delete crud operations. And our models give us JavaScript objects. We can work with directly in Node.
+That's what mongooses means by object modeling, Mongoose takes the data as it's represented in MongoDB. And allows us to access it as objects in JavaScript.
+
+### Schema
+
+`touch models/launches.mongo.js`
+E.g.
+```
+const planetSchema = new mongoosese.Schema({
+    // ideally, we want this to match the frontend (Launch.js). Find the reference <option value={planet.keplerName}
+    keplerName: {
+        type: String,
+        required: true
+    }
+});
+```
+
+We map our schemas to collections by using mongoose models. E.g.
+```
+mongoose.model($collection,$schema);
+i.e.
+mongoose.model('Launch', launchesSchema);
+```
+
+Mongoose will then take the collection name, lower case it, and pluralize it. IOW: 'launches' Mongo refers to 'mongoose.model('Launch',launchesSchema)' as compiling the model. 
+
+And than in our launches.model.js, we add:
+
+`const launches = require('./launches.mongo');`
+and don't forget the planets model.js file too
+
+
+### Mongoose Models vs MVC Models
+Models and schemas are objects and classes that Mongoose provides for us to talk to collections of documents
+in MongoDB.
+
+These are very specific tools, while models in model view controller are a more general concept that can apply to any database or any external data source.
+
+Our model is something that generally captures the data our API is working with.
+
+Now, in some node projects, you'll see just one model.
+
+You'll have a Model.js file, which most likely just exports the Mongoose model that we have here,directly. So why do we have these additional models?
+
+We're using these model files here to act as the data access layer, that controls how data is read and
+updated, while hiding the Mongoose and MongoDB specific implementation details. The things that are in our Mongo.js file.
+
+If we ever decided to switch databases, we could swap out the implementation of our model here to use a different data structure or database because our controllers only work with the functions that we export from this file and they don't care about how they're implemented,none of the code in our controllers or any of the code above this data access layer will have to change because of how we've set things up.
+
+At least any changes would be limited to the overall higher level functionality that our model supports. Allowing for this kind of flexibility is a big part of what these extra layers and abstractions are all about. 
+
+Our model.js files here are higher level and easier to work with in the context of what our API is trying to do than a mongoose model would be directly. Hopefully that makes sense why we didn't use mongoose model directly! It's for this flexibility of changing databases but still having our data represented in our code prior to integrating mongoose IMU.
+
+
