@@ -135,3 +135,72 @@ At least any changes would be limited to the overall higher level functionality 
 Our model.js files here are higher level and easier to work with in the context of what our API is trying to do than a mongoose model would be directly. Hopefully that makes sense why we didn't use mongoose model directly! It's for this flexibility of changing databases but still having our data represented in our code prior to integrating mongoose IMU.
 
 
+### Creating and Inserting Documents
+
+Luckily we don't keep loading the same data into the mongoose database every time we start the server via loadPlanetsData() fcn thanks to `upsert` which is short for 'insert' and 'update'. 
+
+### find
+E.g. planets.find({
+    keplerName: 'Kepler-62 f', <-- only documents matching these propeties would be returned >,
+    {
+        // Mongo calls this the projection. It's the list of fields from those planet documents that you'd  like to include in the results.
+        bobby: 1 <-- return the field bobby>
+        jim: 0 <-- exlude the name from our docs>
+        or we can use a string to include/exclude a list of fields. the above bobby/jim would look like
+        'bobby -jim'
+    }
+})
+
+// find all documents
+await MyModel.find({})
+
+// find all documents named john and at least 18
+await MyModel.find({ name: 'john', age: { $gte: 18 }}).exec();
+
+// executes, passing results to callback
+MyModel.find({name: 'john', age: { $gte: 18 }}, function (err, docs) {});
+
+// Regular Expressions
+await MyModel.find({ name: /john/i }, 'name friends').exec()
+
+see docs for more options
+
+### Object Ids
+
+There are mongodb object id time stamp calculators online we can use to see when an objectid was created! pretty cool. Object ids need to be unique of course.
+
+{
+    _id:68137e5a684705c061b6e19b
+    keplerName: "Kepler-296 A f"
+    __v:0
+}
+
+Mongoose creates the '__v:0' property as an added advanced feature which is called the version key to help keep track of the version you create. If you wanted to keep older versions around, you can increment this value. 
+
+### Saving/Listing Launches
+
+
+
+### Referential Integrity
+
+The property of data stating that all its references are valid. IOW: the data exists in the table/location it is referencing IMW. 
+
+The easiest way to implement is to ensure it exists before you call any add code per Udemy.
+
+We go to our launches.model.js and import './planets.mongo' Generally we want to talk to layers below. This is so our dependencies to get all tangled up when changes are introduced! 
+IOW: our top two lines are both talking to same layer and we're not mixing and matching. E.g.
+
+```
+const launchesDatabase = require('./launches.mongo');
+const planets = require('./planets.mongo');
+```
+
+### Autoincrement
+
+Harder to do with mongo than a SQL db. 
+
+MongoDB is better for horizontal scaling due to this fact! IOW: If you have multiple database instances running in a cluster, which one decides which id/number to use when creating and storing that state? Maybe all the instances decide but than that number needs to remain in sync and thus overhead.  So the reason Mongo is better for horizontal scaling is the reason it's harder for autoincrementing.
+
+
+
+

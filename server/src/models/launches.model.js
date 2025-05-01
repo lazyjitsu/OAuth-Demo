@@ -1,4 +1,5 @@
-const launches = require('./launches.mongo');
+const launchesDatabase = require('./launches.mongo');
+const planets = require('./planets.mongo');
 
 const launches = new Map();
 
@@ -15,27 +16,47 @@ launch = {
     success:true,
   }
 
+saveLaunch(launch);
+
+async function saveLaunch(launch) {
+    // findOne returns the js object 
+    const planet = await planets.findOne({
+        keplerName:launch.target
+    })
+
+    if (!planet) {
+        throw new Error('No matching planett was found')
+    }
+
+    await launchesDatabase.updateOne({
+        // does this data already exist which is determined by flightNumber
+        flightNumber: launch.flightNumber
+    },
+    launch, 
+    {
+        upsert: true
+    })
+}
 function addNewLaunch(launch) {
     lastFlightNumber++;
-    // key=lastFlightNumber, value is the object launch and we use Object.assign to assign
-    // new properties to the launch object, if there are pre-existing properties, they are 
-    // overwritten.
-
     launches.set(
         lastFlightNumber,
         Object.assign(launch,
             {
-            // these properties we set for our client call. Stuff the server doesnt need to know from
-            // the client and providing this convenience for  our client.
             success:true,
             upcoming:true,
             customers: ['ZTM','NASA'],
             flightNumber:lastFlightNumber,
         }));
 };
+
+// launches.set(launch.flightNumber,launch);
+
 function existsLaunchWithId(launchId) {
     return launches.has(launchId)
 }
+
+
 function abortLaunchById(launchId) {
     // in the era of big data, we do NOT delete but we can mark
     // it as aborted etc. Even though our aborted object is constand and we can't reassign it,
@@ -47,10 +68,16 @@ function abortLaunchById(launchId) {
 
     return aborted;
 }
-function getAllLaunches() {
-    return Array.from(launches.values())
+async function getAllLaunches() {
+    // return Array.from(launches.values())
+    return await launchesDatabase
+    .find({},
+        {
+            '_id':0,
+            '__v':0
+        })
 }
-  launches.set(launch.flightNumber, launch);
+//   launches.set(launch.flightNumber, launch);
   module.exports = {
     getAllLaunches,
     addNewLaunch,

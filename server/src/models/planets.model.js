@@ -1,6 +1,9 @@
 const { parse } = require('csv-parse');
 const fs = require('fs');
 const path = require('path')
+
+const planets = require('./planets.mongo');
+
 const habitablePlanets = [];
 
 function isHabitablePlanet(planet) {
@@ -26,28 +29,54 @@ function loadPlanetsData() {
         comment: '#',
         columns: true,
         }))
-        .on('data', (data) => {
+        .on('data', async (data) => {
         if (isHabitablePlanet(data)) {
-            habitablePlanets.push(data);
+            savePlanet(data);
         }
         })
         .on('error', (err) => {
             console.log(err);
             reject(err);
         })
-        .on('end', () => {
-        console.log(habitablePlanets.map((planet) => {
-            return planet['kepler_name'];
-        }));
-        console.log(`${habitablePlanets.length} habitable planets found!`);
-        // resolve(habitablePlanets); // This line is not needed here
-        resolve();
+        .on('end', async () => {
+            const countPlanetsFound = (await getAllPlanets()).length;
+            console.log(`Planets found: ${countPlanetsFound}`)
+            resolve();
         });
     });
 }
 
-function getAllPlanets() {
-    return habitablePlanets;
+async function savePlanet(planet) {
+                // habitablePlanets.push(data);
+            // we need to pass in the data in way that matches the schema
+        try {
+            await planets.updateOne(
+                {
+                    // First object/query: makes sure planet doesn't already exist
+                    // find all documents matching the keplerName that matches kepler_name
+                    keplerName: planet.kepler_name 
+                },
+                {
+                    // Second object/query: if it does NOT already exist, insert w/this object
+                    keplerName: planet.kepler_name
+                },
+                {
+                    upsert: true,
+                });
+        } catch(err) {
+            console.error(` Could not save planet ${err}`)
+        }
+
+}
+async function getAllPlanets() {
+    // return habitablePlanets;
+    // our planets.* are async operations
+    // all documents will be returned if the object is empty
+    //  return await planets.find({},'-_id -__v') or better yet (more clean IMO)
+    return await planets.find({},{
+        '_id': 0,
+        '__v': 0
+    })
 }
 
   module.exports = {
