@@ -3,6 +3,8 @@ const planets = require('./planets.mongo');
 
 const launches = new Map();
 
+const DEFAULT_FLIGHT_NUMBER = 100;
+
 let lastFlightNumber = 100
 
 launch = {
@@ -20,6 +22,7 @@ saveLaunch(launch);
 
 async function saveLaunch(launch) {
     // findOne returns the js object 
+
     const planet = await planets.findOne({
         keplerName:launch.target
     })
@@ -27,8 +30,9 @@ async function saveLaunch(launch) {
     if (!planet) {
         throw new Error('No matching planett was found')
     }
-
-    await launchesDatabase.updateOne({
+    //replaced upateOne with findOneAndUpdate to avoid the $setOnInsert being sent back
+    // we don't want internal and uncessary data revealing what tech our API is running on
+    await launchesDatabase.findOneAndUpdate({
         // does this data already exist which is determined by flightNumber
         flightNumber: launch.flightNumber
     },
@@ -37,36 +41,57 @@ async function saveLaunch(launch) {
         upsert: true
     })
 }
-function addNewLaunch(launch) {
-    lastFlightNumber++;
-    launches.set(
-        lastFlightNumber,
-        Object.assign(launch,
-            {
-            success:true,
-            upcoming:true,
-            customers: ['ZTM','NASA'],
-            flightNumber:lastFlightNumber,
-        }));
-};
+
+async function scheduleNewLaunch(launch) {
+    const newFlightNumber = await getLatestFlightNumber() + 1;
+
+    const newLaunch = Object.assign(launch, {
+        success:true,
+        upcoming:true,
+        customers: ['Zerto to Mastery', 'NASA'],
+        flightNumber: newFlightNumber,
+    })
+
+    await saveLaunch(newLaunch);
+}
 
 // launches.set(launch.flightNumber,launch);
 
-function existsLaunchWithId(launchId) {
-    return launches.has(launchId)
+async function existsLaunchWithId(launchId) {
+    // return launches.has(launchId)
+    return await launchesDatabase.findOne({
+        flightNumber:launchId
+    })
 }
 
+async function getLatestFlightNumber() {
+    const latestLaunch = await launchesDatabase
+        .findOne() // only one document needed
+        // sort by flightNumber property- defaults ascending order
+        // to get into descending - Add the '-' to flightNumber per below
+        .sort('-flightNumber'); 
+    if (!latestLaunch) {
+        return DEFAULT_FLIGHT_NUMBER;
+    }
+    return latestLaunch.flightNumber;
+}
 
-function abortLaunchById(launchId) {
-    // in the era of big data, we do NOT delete but we can mark
-    // it as aborted etc. Even though our aborted object is constand and we can't reassign it,
-    //  we can still mutate the properties.
-    const aborted = launches.get(launchId);
+async function abortLaunchById(launchId) {
+    const aborted = await launchesDatabase.updateOne({
+        flightNumber: launchId,
+    }, 
+    {
+        upcoming:false,
+        success:false
+        // didn't use 'upsert' cause we don't want anything insert if something 
+        // does NOT exist. In he very odd chance
+    })  
+    // console.log(`Launch id ${Object.keys(aborted)} aborted!`)
+    // my version
+    // return aborted.acknowledged === true && aborted.modifiedCount === 1;
+    // udemy version
+    return aborted.modifiedCount === 1;
 
-    aborted.upcoming = false;
-    aborted.success = false;
-
-    return aborted;
 }
 async function getAllLaunches() {
     // return Array.from(launches.values())
@@ -80,7 +105,7 @@ async function getAllLaunches() {
 //   launches.set(launch.flightNumber, launch);
   module.exports = {
     getAllLaunches,
-    addNewLaunch,
+    scheduleNewLaunch,
     existsLaunchWithId,
     abortLaunchById
   };
