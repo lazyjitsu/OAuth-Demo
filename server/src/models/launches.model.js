@@ -2,8 +2,6 @@ const launchesDatabase = require('./launches.mongo');
 const planets = require('./planets.mongo');
 const axios = require('axios');
 
-const launches = new Map();
-
 const DEFAULT_FLIGHT_NUMBER = 100;
 
 let lastFlightNumber = 100
@@ -24,59 +22,69 @@ saveLaunch(launch);
 
 const SPACEX_API_URL="https://api.spacexdata.com/v4/launches/query";
 
-async function loadSpaceXData() {
+async function populateLaunches() {
     console.log('Downloading SpaceX Data....')
     const response = await axios.post(SPACEX_API_URL,{
-    // need proper json here
-            query:{},
-            options: {
-                populate: [
-                    {
-                        path: 'rocket',
-                        select: {
-                            name:1
+        // need proper json here
+                query:{},
+                options: {
+                    pagination: false,
+                    populate: [
+                        {
+                            path: 'rocket',
+                            select: {
+                                name:1
+                            }
+                        },
+                        {
+                            path: 'payloads',
+                            select: {
+                                'customers': 1
+                            }
                         }
-                    },
-                    {
-                        path: 'payloads',
-                        select: {
-                            'customers': 1
-                        }
-                    }
-                ]
-            }
-    });
-    const launchDocs = response.data.docs; // note axios puts here
-    
-    for (const launchDoc of launchDocs) {
-        const payloads = ['payloads'];
-        // get customers into a single list, a single array
-        const customers = payloads.flatMap((payload) => {
-            return payload['customers'];
-        })
+                    ]
+                }
+        });
 
-        const launch = {
-            flightNumber: launchDoc['flight_number'],
-            mission: launchDoc['name'],
-            rocket: launchDoc['rocket']['name'],
-            launchDate: launchDoc['data_local'],
-            upcoming: launchDoc['upcoming'],
-            success: launchDoc['success'],
-            customers,
+        if (response.status !== 200) {
+            console.log("Problem downloading launch data");
+            throw new Error('Launch data download failed')
         }
-        console.log(`spaceX: ${launch.flightNumber} ${launch.mission}`)
+        const launchDocs = response.data.docs; // note axios puts here
+        for (const launchDoc of launchDocs) {
+            const payloads = ['payloads'];
+            // get customers into a single list, a single array
+            const customers = payloads.flatMap((payload) => {
+                return payload['customers'];
+            })
+    
+            const launch = {
+                flightNumber: launchDoc['flight_number'],
+                mission: launchDoc['name'],
+                rocket: launchDoc['rocket']['name'],
+                launchDate: launchDoc['date_local'],
+                upcoming: launchDoc['upcoming'],
+                success: launchDoc['success'],
+                customers,
+            }
+            console.log(`spaceX: ${launch.flightNumber} ${launch.mission}`)
+            await saveLaunch(launch);
+        }
+}
+async function loadSpaceXData() {
+    const firstLaunch = await findLaunch({
+        flightNumber: 1,
+        rocket: 'Flacon 1',
+        mission: 'FalconSat',
+    })
+    if (firstLaunch) {
+        console.log('Launch data alreadyloaded');
+    } else {
+        await populateLaunches();
     }
 }
 async function saveLaunch(launch) {
-    // findOne returns the js object 
 
-    const planet = await planets.findOne({
-        keplerName:launch.target
-    })
-
-    if (!planet) {
-        throw new Error('No matching planett was found')
-    }
     //replaced upateOne with findOneAndUpdate to avoid the $setOnInsert being sent back
     // we don't want internal and uncessary data revealing what tech our API is running on
     await launchesDatabase.findOneAndUpdate({
@@ -90,6 +98,14 @@ async function saveLaunch(launch) {
 }
 
 async function scheduleNewLaunch(launch) {
+        // findOne returns the js object 
+        const planet = await planets.findOne({
+            keplerName:launch.target
+        })
+        if (!planet) {
+            throw new Error('No matching planett was found')
+        }
+
     const newFlightNumber = await getLatestFlightNumber() + 1;
 
     const newLaunch = Object.assign(launch, {
@@ -102,12 +118,13 @@ async function scheduleNewLaunch(launch) {
     await saveLaunch(newLaunch);
 }
 
-// launches.set(launch.flightNumber,launch);
+async function findLaunch(filter) {
+    return await launchesDatabase.findOne(filter)
+}
 
 async function existsLaunchWithId(launchId) {
-    // return launches.has(launchId)
-    return await launchesDatabase.findOne({
-        flightNumber:launchId
+    return await findLaunch({
+        flightNumber: launchId,
     })
 }
 
@@ -133,10 +150,7 @@ async function abortLaunchById(launchId) {
         // didn't use 'upsert' cause we don't want anything insert if something 
         // does NOT exist. In he very odd chance
     })  
-    // console.log(`Launch id ${Object.keys(aborted)} aborted!`)
-    // my version
-    // return aborted.acknowledged === true && aborted.modifiedCount === 1;
-    // udemy version
+
     return aborted.modifiedCount === 1;
 
 }
@@ -149,7 +163,7 @@ async function getAllLaunches() {
             '__v':0
         })
 }
-//   launches.set(launch.flightNumber, launch);
+
 module.exports = {
     loadSpaceXData,
     existsLaunchWithId,
