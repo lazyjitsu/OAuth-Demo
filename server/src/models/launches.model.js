@@ -1,5 +1,6 @@
 const launchesDatabase = require('./launches.mongo');
 const planets = require('./planets.mongo');
+const axios = require('axios');
 
 const launches = new Map();
 
@@ -8,18 +9,45 @@ const DEFAULT_FLIGHT_NUMBER = 100;
 let lastFlightNumber = 100
 
 launch = {
-    flightNumber: 100,
-    mission: 'Kepler Exploration X',
-    rocket: 'Explorer IS1',
-    launchDate: new Date('December 22, 2040'),
-    target: 'Kepler-442 b',
-    customer: ['ZTM','NASA'],
-    upcoming:true,
-    success:true,
+    flightNumber: 100, // flight_number (spaceX)
+    mission: 'Kepler Exploration X', // name (spaceX)
+    rocket: 'Explorer IS1', // rocket.name (spaceX)
+    launchDate: new Date('December 22, 2040'), // date_local (several options but his seems best from spaceX)
+    target: 'Kepler-442 b', // not applicable. spaceX not targeting our habitable planets. 
+    // organizations/indviduals that want to send a payload into space
+    customer: ['ZTM','NASA'], // payload.customers for ea. payload(spaceX)
+    upcoming:true, // upcoming (spaceX)
+    success:true, // success (spaceX)
   }
 
 saveLaunch(launch);
 
+const SPACEX_API_URL="https://api.spacexdata.com/v4/launches/query";
+
+async function loadSpaceXData() {
+    console.log('Downloading SpaceX Data....')
+    const reponse = await axios.post(SPACEX_API_URL,{
+    // need proper json here
+            query:{},
+            options: {
+                populate: [
+                    {
+                        path: 'rocket',
+                        select: {
+                            name:1
+                        }
+                    },
+                    {
+                        path: 'payloads',
+                        select: {
+                            'customers': 1
+                        }
+                    }
+                ]
+            }
+    });
+
+}
 async function saveLaunch(launch) {
     // findOne returns the js object 
 
@@ -103,10 +131,11 @@ async function getAllLaunches() {
         })
 }
 //   launches.set(launch.flightNumber, launch);
-  module.exports = {
+module.exports = {
+    loadSpaceXData,
+    existsLaunchWithId,
     getAllLaunches,
     scheduleNewLaunch,
-    existsLaunchWithId,
     abortLaunchById
-  };
+};
 
