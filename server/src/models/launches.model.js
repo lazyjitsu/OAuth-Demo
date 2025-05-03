@@ -26,7 +26,7 @@ const SPACEX_API_URL="https://api.spacexdata.com/v4/launches/query";
 
 async function loadSpaceXData() {
     console.log('Downloading SpaceX Data....')
-    const reponse = await axios.post(SPACEX_API_URL,{
+    const response = await axios.post(SPACEX_API_URL,{
     // need proper json here
             query:{},
             options: {
@@ -46,7 +46,26 @@ async function loadSpaceXData() {
                 ]
             }
     });
+    const launchDocs = response.data.docs; // note axios puts here
+    
+    for (const launchDoc of launchDocs) {
+        const payloads = ['payloads'];
+        // get customers into a single list, a single array
+        const customers = payloads.flatMap((payload) => {
+            return payload['customers'];
+        })
 
+        const launch = {
+            flightNumber: launchDoc['flight_number'],
+            mission: launchDoc['name'],
+            rocket: launchDoc['rocket']['name'],
+            launchDate: launchDoc['data_local'],
+            upcoming: launchDoc['upcoming'],
+            success: launchDoc['success'],
+            customers,
+        }
+        console.log(`spaceX: ${launch.flightNumber} ${launch.mission}`)
+    }
 }
 async function saveLaunch(launch) {
     // findOne returns the js object 
