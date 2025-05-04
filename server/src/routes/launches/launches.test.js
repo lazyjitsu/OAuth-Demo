@@ -1,5 +1,10 @@
 const request = require('supertest');
 const app = require('../../app')
+const mongoose = require('mongoose');
+ 
+require('dotenv').config();
+ 
+const MONGO_URL = process.env.MONGO_URL;
 const {mongoConnect,mongoDisconnect} = require('../../services/mongo')
 
 describe('Launches API', () => {

@@ -5,8 +5,7 @@ const mongoose=require('mongoose')
     Mongoose stock connection
  */
 
-const MONGO_URL='mongodb+srv://nasa-api:zi23V2KSRR39Syn6@nasa-planets.miwv8g9.mongodb.net/?retryWrites=true&w=majority&appName=NASA-Planets'
-
+const MONGO_URL= process.env.MONGO_URL;
 // mongoose.connection.on('open',() => {
 //   console.log('MongoDB connection ready!')
 // })

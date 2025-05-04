@@ -1,8 +1,12 @@
 const http = require('http');
 const app = require('./app'); // Import the app module
+require('dotenv').config();
+
 const {mongoConnect} = require('./services/mongo')
 const {loadPlanetsData} = require('./models/planets.model'); // Import the planets model
 const {loadSpaceXData} = require('./models//launches.model')
+
+
 console.log("APP clalled")
 const PORT = process.env.PORT || 8100;
 
