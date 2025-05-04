@@ -154,14 +154,13 @@ async function abortLaunchById(launchId) {
     return aborted.modifiedCount === 1;
 
 }
-async function getAllLaunches() {
+async function getAllLaunches(skip,limit) {
     // return Array.from(launches.values())
     return await launchesDatabase
-    .find({},
-        {
-            '_id':0,
-            '__v':0
-        })
+    .find({}, {'_id':0,'__v':0})
+        .sort({flightNumber: -1}) // sort by flight number, ascending; =1 is descending
+        .skip(skip)
+        .limit(limit);
 }
 
 module.exports = {

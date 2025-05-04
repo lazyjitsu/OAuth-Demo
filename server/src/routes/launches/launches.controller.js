@@ -3,10 +3,12 @@
 
 // recall launches is a new map();
 const {getAllLaunches,scheduleNewLaunch,existsLaunchWithId, abortLaunchById} = require('../../models/launches.model');
-async function httpGetAllLaunches(req, res) {
-    console.log('Fetching all launches...');
+const {getPagination} = require('../../services/query');
 
-    return res.status(200).json(await getAllLaunches());
+async function httpGetAllLaunches(req, res) {
+    const {skip, limit } = getPagination(req.query);
+    const launches = await getAllLaunches(skip,limit)
+    return res.status(200).json(launches);
 } 
 
 async function httpAddNewLaunch(req,res) {
