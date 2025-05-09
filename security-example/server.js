@@ -25,7 +25,7 @@ const AUTH_OPTIONS = {
 }
 
 function verifyCallback(accessToken, refreshToken, profile, done) {
-    console.log('Google profile',profile, 'access token: ',accessToken);
+    console.log('Google profile',profile);
     // if the credentials are valid, call done. if something goes wrong, we can pass an error
     // we are passing in null. the user data is just the profile
     done(null,profile); //passport knows u are logged in now
@@ -39,8 +39,13 @@ passport.serializeUser((user,done) => {
 })
 
 // Read the session from cookie
-passport.deserializeUser((obj,done) => {
-    done(null,obj)
+passport.deserializeUser((id,done) => {
+    // if we had a database, we would look up the user in the database
+    // User.findById(id).then (user => {  
+    //     done(null,user);
+    // } so req.user is going to contain all the data we need
+    // but for now, we are just going to pass the id
+    done(null,id);
 })
 const app = express();
 
@@ -55,10 +60,12 @@ app.use(cookieSession({
 app.use(passport.initialize())
 // .session() authenticates the session that is passed in to server using our keys
 app.use(passport.session()) // will allow deserealization of the user object i.e deserialize the cookie
-function checkLoggedIn(erq, res, next) {
-    const isLoggedIn = true; //Todo
+function checkLoggedIn(req, res, next) {
+    // const isLoggedIn = true;
+    console.log('req.user',req.user);
+    const isLoggedIn = req.user;
     if (!isLoggedIn) {
-        return res.stats(401).json({
+        return res.status(401).json({
             error: 'You must be logged in'
         })
     }

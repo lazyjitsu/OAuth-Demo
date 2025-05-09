@@ -176,4 +176,11 @@ function verifyCallback(accessToken, refreshToken, profile, done) {
 }
 passport.use(new Strategy(AUTH_OPTIONS, verifyCallback));
 ```
+
 And it's going to create that first cookie for our session. Right now, we're taking the entire user profile, but instead we could pick and choose certain properties or even just select one property like User ID.
+
+But if we were using server side sessions, for example, we could store just this ID in the cookie.
+And if we needed to know more about the user to determine what they have access to, for example, what permissions they have in our API? Well, this decentralized user function would be called when we take that cookie and read it when we're handling a request, the cookie data would be passed in as this object. The cookie would be verified with our secret key, and we would take this object with our cookie data and we could look up the user with that session by their user ID. Inside of our database and our database might store this user's permissions, their email and any other data we need.
+
+So this deserialized user function might do some database lookups like a user dot find by ID. And in this case, the objects that were being sent in our session is an ID. It's this user ID that we serialized.
+So he could find my ID. And once that fetches our user data, we could see that then whatever data we fetched about our user can be sent in the done callback.
