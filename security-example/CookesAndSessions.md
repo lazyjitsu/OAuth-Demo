@@ -184,3 +184,16 @@ And if we needed to know more about the user to determine what they have access 
 
 So this deserialized user function might do some database lookups like a user dot find by ID. And in this case, the objects that were being sent in our session is an ID. It's this user ID that we serialized.
 So he could find my ID. And once that fetches our user data, we could see that then whatever data we fetched about our user can be sent in the done callback.
+
+## Logout
+
+## Next Steps
+
+- Refresh Token
+- Role Based Access Control 
+    - store roles in session
+
+
+Security Cheat Sheet
+
+https://cheatsheetseries.owasp.org/cheatsheets/Nodejs_Security_Cheat_Sheet.html

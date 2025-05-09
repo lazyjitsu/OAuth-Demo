@@ -95,7 +95,9 @@ app.get('/auth/google/callback',passport.authenticate('google', {
 })
 
 app.get('/auth/logout',(req,res) => {
-    
+    // this is exactly the same as going to devtools and deleting/clearing the cookie
+    req.logout(); // passport function and also removes req.user i.e. req.user = null
+    return res.redirect('/'); // redirect to home page
 })
 // we could pass in as many functions as we want such as:
 // app.get('/secret',checkLoggedIn,checkPermissions,(req,res) ....
