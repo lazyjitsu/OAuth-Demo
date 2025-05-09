@@ -61,9 +61,11 @@ app.use(passport.initialize())
 // .session() authenticates the session that is passed in to server using our keys
 app.use(passport.session()) // will allow deserealization of the user object i.e deserialize the cookie
 function checkLoggedIn(req, res, next) {
-    // const isLoggedIn = true;
     console.log('req.user',req.user);
-    const isLoggedIn = req.user;
+    // const isLoggedIn = req.user;
+    // other middleware could set req.user to something else. to be sure we are logged in
+    // we can use req.isAuthenticated() which is a passport function
+    const isLoggedIn = req.isAuthenticated();
     if (!isLoggedIn) {
         return res.status(401).json({
             error: 'You must be logged in'
