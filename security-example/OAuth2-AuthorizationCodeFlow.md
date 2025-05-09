@@ -12,7 +12,7 @@ sequenceDiagram
     participant Resource Server(API/Your Server)
 
     ResourceOwner(Browser/User)->>WebApp:Access (i.e. clicked on a link)
-    WebApp->>AuthServer(Okta/Google): Request Authorization ie authorization code request to /auth (attach a cb url included IMU)
+    WebApp->>AuthServer(Okta/Google): Request Authorization ie authorization code request to /auth (attach a cb url included IMU /auth/google/callback)
     AuthServer(Okta/Google)->>ResourceOwner(Browser/User):302 redirect to login form/authentication prompt
     ResourceOwner(Browser/User)->>AuthServer(Okta/Google): Authentication & Consent
     AuthServer(Okta/Google)->>WebApp: Issue Authorization Code (user is sent to the redirect/cb URI from step 2 IMU)
@@ -22,4 +22,6 @@ sequenceDiagram
     Resource Server(API/Your Server)->>WebApp: Return data
 ```
 
-[!OAuth Google Signup](/OAuth-google-setup-3.GIF)
+
+
+![OAuth Google Signup](/OAuth-google-setup-3.GIF)
