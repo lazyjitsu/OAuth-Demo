@@ -141,3 +141,39 @@ And as an argument to this function, we pass any callback that's executed whenev
 
 This callback takes in a user object that's the user being serialized, as well as this done a function which we call once we've done all of that serialization work. done is a callback in case we need to do any asynchronous work to serialized the user, for example, making a lookup inside of a database. 
 
+Warning: regnerate error gets generated so we need to uninstall/install passport to this version per Udemy.
+
+```
+npm uninstall passport
+npm install passport@0.5
+```
+Example:
+
+session-salad=eyJwYXNzcG9ydCI6eyJ1c2VyIjp7ImlkIjoiMTAyNzM1NDYwMTE1Njg1NjE1Nzk2IiwiZW1haWxzIjpbeyJ2YWx1ZSI6ImdyYXBobmVlbmphQGdtYWlsLmNvbSIsInZlcmlmaWVkIjp0cnVlfV0sInBob3RvcyI6W3sidmFsdWUiOiJodHRwczovL2xoMy5nb29nbGV1c2VyY29udGVudC5jb20vYS0vQUxWLVVqVzVWWGNxTS1nLWNDSzI2VjlDNGc5Y1E2aFdoWWwyeG9hazdXc3cxekZ0a2IzWVFnPXM5Ni1jIn1dLCJwcm92aWRlciI6Imdvb2dsZSIsIl9yYXciOiJ7XG4gIFwic3ViXCI6IFwiMTAyNzM1NDYwMTE1Njg1NjE1Nzk2XCIsXG4gIFwicGljdHVyZVwiOiBcImh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hLS9BTFYtVWpXNVZYY3FNLWctY0NLMjZWOUM0ZzljUTZoV2hZbDJ4b2FrN1dzdzF6RnRrYjNZUWdcXHUwMDNkczk2LWNcIixcbiAgXCJlbWFpbFwiOiBcImdyYXBobmVlbmphQGdtYWlsLmNvbVwiLFxuICBcImVtYWlsX3ZlcmlmaWVkXCI6IHRydWVcbn0iLCJfanNvbiI6eyJzdWIiOiIxMDI3MzU0NjAxMTU2ODU2MTU3OTYiLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EtL0FMVi1Valc1VlhjcU0tZy1jQ0syNlY5QzRnOWNRNmhXaFlsMnhvYWs3V3N3MXpGdGtiM1lRZz1zOTYtYyIsImVtYWlsIjoiZ3JhcGhuZWVuamFAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWV9fX19; path=/; expires=Sat, 10 May 2025 15:09:23 GMT; secure; httponly
+
+set-cookie:
+session-salad.sig=ifJAJg3w4qUwDfypwwY55mHKqM0; path=/; expires=Sat, 10 May 2025 15:09:23 GMT; secure; httponly
+
+Note the path the cookie is set on is '/' and `secure` for only https and `httponly` for NOT allowing javascript to access the cookie. To prove that, in dev tools console type:
+```
+document.cookie
+```
+and you will see '' returned! 
+
+Goto application--> cookies and see two cookies: 1 the actual session and the other the signature.
+
+So far all we're doing is taking in the profile as it comes in from google and setting our session to that and reading that entire profile back whenever our cookie is sent to the API. This can be quite expensive and we should look for the salient parts of the profile so we can trim it down IMW. 
+
+
+Let's take a look.
+
+The serialize user is going to take the Google profile, the one that we get in our verify callback.
+Recall the code:
+```
+function verifyCallback(accessToken, refreshToken, profile, done) {
+    console.log('Google profile',profile, 'access token: ',accessToken);
+    done(null,profile); //passport knows u are logged in now
+}
+passport.use(new Strategy(AUTH_OPTIONS, verifyCallback));
+```
+And it's going to create that first cookie for our session. Right now, we're taking the entire user profile, but instead we could pick and choose certain properties or even just select one property like User ID.
