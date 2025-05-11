@@ -6,19 +6,19 @@ const DEFAULT_FLIGHT_NUMBER = 100;
 
 let lastFlightNumber = 100
 
-launch = {
-    flightNumber: 100, // flight_number (spaceX)
-    mission: 'Kepler Exploration X', // name (spaceX)
-    rocket: 'Explorer IS1', // rocket.name (spaceX)
-    launchDate: new Date('December 22, 2040'), // date_local (several options but his seems best from spaceX)
-    target: 'Kepler-442 b', // not applicable. spaceX not targeting our habitable planets. 
-    // organizations/indviduals that want to send a payload into space
-    customer: ['ZTM','NASA'], // payload.customers for ea. payload(spaceX)
-    upcoming:true, // upcoming (spaceX)
-    success:true, // success (spaceX)
-  }
+// launch = {
+//     flightNumber: 100, // flight_number (spaceX)
+//     mission: 'Kepler Exploration X', // name (spaceX)
+//     rocket: 'Explorer IS1', // rocket.name (spaceX)
+//     launchDate: new Date('December 22, 2040'), // date_local (several options but his seems best from spaceX)
+//     target: 'Kepler-442 b', // not applicable. spaceX not targeting our habitable planets. 
+//     // organizations/indviduals that want to send a payload into space
+//     customer: ['ZTM','NASA'], // payload.customers for ea. payload(spaceX)
+//     upcoming:true, // upcoming (spaceX)
+//     success:true, // success (spaceX)
+//   }
 
-saveLaunch(launch);
+// saveLaunch(launch);
 
 const SPACEX_API_URL="https://api.spacexdata.com/v4/launches/query";
 

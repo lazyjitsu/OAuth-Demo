@@ -16,6 +16,7 @@ async function startServer() {
   await mongoConnect();
   await loadPlanetsData(); // Load planets data before starting the server
   await loadSpaceXData();
+  
   server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
   });
