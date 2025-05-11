@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "cd server && npm test && cd client && npm test",
+    "test": "npm test --prefix server && npm test --prefix client",
     "server": "npm run watch --prefix server",
     "client": "npm start --prefix client",
     "watch": "npm run client & npm run server",
@@ -11,7 +11,7 @@
     "start-all": "\"npm run server\" && \"npm run client\"",
     "install-server": "npm install --prefix server",
     "install-client": "npm install --prefix client",
-    "install-all": "npm install --prefix server && npm install --prefix client",
+    "install": "npm run install-server && npm run install-client",
     "deploy": "npm run build --prefix client && npm start --prefix server",
     "deploy-cluster": "npm run build --prefix client && npm run cluster --prefix server"
   },
