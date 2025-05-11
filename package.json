@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "cd server && npm test && cd ../client && npm test",
+    "test": "cd server && npm test && cd client && npm test",
     "server": "npm run watch --prefix server",
     "client": "npm start --prefix client",
     "watch": "npm run client & npm run server",
