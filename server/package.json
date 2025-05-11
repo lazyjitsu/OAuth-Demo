@@ -4,7 +4,7 @@
   "main": "src/server.js",
   "scripts": {
     "test": "jest --detectOpenHandles",
-    "test-watch": "jets --watch",
+    "test-watch": "jest --watch",
     "start": "node src/server.js",
     "watch": "nodemon src/server.js",
     "cluster": "pm2 start src/server.js -i max"
