@@ -82,7 +82,7 @@ describe('Launches API', () => {
         .expect(400);
   
       expect(response.body).toStrictEqual({
-        error: 'Invalid launch date',
+        error: 'Invalid launch datee',
       });
     });
   });
